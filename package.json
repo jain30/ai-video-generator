@@ -1,0 +1,42 @@
+{
+  "name": "video-generator-using-ai",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "db:push": "drizzle-kit push",
+    "db:studio": "drizzle-kit studio"
+  },
+  "dependencies": {
+    "@clerk/nextjs": "^6.4.1",
+    "@google-cloud/text-to-speech": "^5.6.0",
+    "@google/generative-ai": "^0.21.0",
+    "@neondatabase/serverless": "^0.10.3",
+    "@radix-ui/react-alert-dialog": "^1.1.2",
+    "@radix-ui/react-select": "^2.1.2",
+    "@radix-ui/react-slot": "^1.1.0",
+    "assemblyai": "^4.8.0",
+    "axios": "^1.7.8",
+    "class-variance-authority": "^0.7.0",
+    "clsx": "^2.1.1",
+    "drizzle-orm": "^0.36.3",
+    "firebase": "^11.0.2",
+    "lucide-react": "^0.460.0",
+    "next": "13.5.7",
+    "react": "^18",
+    "react-dom": "^18",
+    "replicate": "^1.0.1",
+    "tailwind-merge": "^2.5.4",
+    "tailwindcss-animate": "^1.0.7",
+    "uuid": "^11.0.3"
+  },
+  "devDependencies": {
+    "autoprefixer": "^10",
+    "drizzle-kit": "^0.28.1",
+    "postcss": "^8",
+    "tailwindcss": "^3"
+  }
+}
