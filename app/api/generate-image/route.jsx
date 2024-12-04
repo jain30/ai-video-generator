@@ -1,6 +1,6 @@
 import { storage } from "@/config/FirebaseConfig";
 import axios from "axios";
-import { getDownloadURL, uploadString } from "firebase/storage";
+import { getDownloadURL,ref, uploadString } from "firebase/storage";
 import { NextResponse } from "next/server";
 import Replicate from "replicate";
 
@@ -20,14 +20,9 @@ export async function POST(req) {
       num_outputs: 1,
     };
 
-    const output = await replicate.run(
-      "bytedance/sdxl-lightning-4step:5599ed30703defd1d160a25a63321b4dec97101d98b4674bcc56e41f62f35637",
-      {
-        input: {
-          prompt: "an astraunaut",
-        },
-      }
-    );
+    const output = await replicate.run("black-forest-labs/flux-dev-lora", {
+      input,
+    });
     console.log("Parsed output:", JSON.stringify(output, null, 2));
 
     // console.log("Replicate output:", output); // Log the response from Replicate
@@ -49,6 +44,7 @@ export async function POST(req) {
 
     const base64Image =
       "data:image/png;base64," + (await ConvertImage(output[0]));
+      console.log(base64Image)
     const fileName = "ai-short-video-file/" + Date.now() + ".png";
     const storageRef = ref(storage, fileName);
 
@@ -58,11 +54,7 @@ export async function POST(req) {
     // console.log(output);
     return NextResponse.json({ result: downloadUrl });
 
-    // import { writeFile } from "node:fs/promises";
-    // for (const [index, item] of Object.entries(output)) {
-    //   await writeFile(`output_${index}.png`, item);
-    // }
-    //=> output_0.png written to disk
+   
   } catch (e) {
     return NextResponse.json({ error: e });
   }

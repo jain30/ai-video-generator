@@ -12,6 +12,7 @@ import { create } from "axios";
 import { useUser } from "@clerk/nextjs";
 import { VideoData } from "@/config/schema";
 import { db } from "../../../config/db.js";
+import PlayerDialog from "../_components/PlayerDialog";
 // const scriptData =
 //   "Did you know that laughter is contagious? It can spread like wildfire through a crowd!Cleopatra lived closer in time to the invention of the iPhone than to the building of the Great Pyramid of Giza.A cat's purr is not only adorable but also a sign of contentment and can help heal bones!Pineapples are a collection of individual berries grown together. It is a multiple fruit.Hummingbirds' hearts can beat over 1,200 times per minute!Chameleons change color not only for camouflage but also to communicate their mood and temperature.Penguins can hold their breath for up to 20 minutes underwater.Yawning is contagious, just like laughter, and helps regulate our body temperature.Sunflowers always face the sun throughout the day, tracking its movement.Giant squids are real and can grow to enormous sizes, though they rarely get seen.";
 
@@ -26,6 +27,8 @@ function CreateNew() {
   const [audioFileUrl, setAudioFileUrl] = useState();
   const [captions, setCaptions] = useState();
   const [imageList, setImageList] = useState();
+  const [playVideo, setPlayVideo] = useState(true);
+  const [videoId, setVideoId] = useState(63);
   const { videoData, setVideoData } = useContext(VideoDataContext);
   const { user } = useUser();
   const onHandleInputChange = (fieldName, fieldValue) => {
@@ -97,7 +100,7 @@ function CreateNew() {
 
     // setAudioFileUrl(resp.data.result);
     resp.data.result &&
-      (await GenerateAudioCaption(resp.data.result, [VideoScriptData[0]]));
+      (await GenerateAudioCaption(resp.data.result, VideoScriptData));
 
     setLoading(false);
   };
@@ -132,6 +135,7 @@ function CreateNew() {
         console.log("replicate response", resp);
         console.log(resp.data.result);
         images.push(resp.data.result);
+        console.log(images);
       } catch (e) {
         console.log("Error:" + e);
       }
@@ -164,7 +168,8 @@ function CreateNew() {
         createdBy: user?.primaryEmailAddress?.emailAddress,
       })
       .returning({ id: VideoData });
-
+    setVideoId(result[0].id);
+    setPlayVideo(true);
     console.log(result);
     setLoading(false);
   };
@@ -191,6 +196,7 @@ function CreateNew() {
         </Button>
       </div>
       <CustomLoading loading={loading} />
+      <PlayerDialog playVideo={playVideo} videoId={videoId} />
     </div>
   );
 }
