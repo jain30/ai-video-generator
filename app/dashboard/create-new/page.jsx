@@ -10,9 +10,13 @@ import { v4 as uuidv4 } from "uuid";
 import { VideoDataContext } from "@/app/_context/VideoDataContext";
 import { create } from "axios";
 import { useUser } from "@clerk/nextjs";
-import { VideoData } from "@/config/schema";
+import { Users, VideoData } from "@/config/schema";
 import { db } from "../../../config/db.js";
 import PlayerDialog from "../_components/PlayerDialog";
+import { UserDetailContext } from "@/app/_context/UserDetailContext";
+// import { Users } from "lucide-react";
+import { eq } from "drizzle-orm";
+import { toast } from "sonner";
 // const scriptData =
 //   "Did you know that laughter is contagious? It can spread like wildfire through a crowd!Cleopatra lived closer in time to the invention of the iPhone than to the building of the Great Pyramid of Giza.A cat's purr is not only adorable but also a sign of contentment and can help heal bones!Pineapples are a collection of individual berries grown together. It is a multiple fruit.Hummingbirds' hearts can beat over 1,200 times per minute!Chameleons change color not only for camouflage but also to communicate their mood and temperature.Penguins can hold their breath for up to 20 minutes underwater.Yawning is contagious, just like laughter, and helps regulate our body temperature.Sunflowers always face the sun throughout the day, tracking its movement.Giant squids are real and can grow to enormous sizes, though they rarely get seen.";
 
@@ -29,6 +33,7 @@ function CreateNew() {
   const [imageList, setImageList] = useState();
   const [playVideo, setPlayVideo] = useState(true);
   const [videoId, setVideoId] = useState(63);
+  const { userDetail, setUserDetail } = useContext(UserDetailContext);
   const { videoData, setVideoData } = useContext(VideoDataContext);
   const { user } = useUser();
   const onHandleInputChange = (fieldName, fieldValue) => {
@@ -41,13 +46,14 @@ function CreateNew() {
   };
 
   const onCreateClickHandler = () => {
-    GetVideoScript();
+    if (userDetail?.credits >= 0) {
+      GetVideoScript();
+    } else {
+      // console.log(userDetail.credits);
 
-    // GenerateAudioFile(scriptData);
-
-    // GenerateAudioCaption(FILEURL);
-
-    // GenerateImage();
+      toast("You don't have enough Credits");
+      return;
+    }
   };
 
   //Get Video Script
@@ -151,8 +157,10 @@ function CreateNew() {
 
   useEffect(() => {
     console.log(videoData);
-    if (Object.keys(videoData).length == 4) {
-      SaveVideoData(videoData);
+    if (videoData) {
+      if (Object.keys(videoData).length == 4) {
+        SaveVideoData(videoData);
+      }
     }
   }, [videoData]);
 
@@ -168,10 +176,25 @@ function CreateNew() {
         createdBy: user?.primaryEmailAddress?.emailAddress,
       })
       .returning({ id: VideoData });
+
+    await UpdateUserCredits();
     setVideoId(result[0].id);
-    setPlayVideo(true);
+    // setPlayVideo(true);
     console.log(result);
     setLoading(false);
+  };
+
+  // used to update user credits
+  const UpdateUserCredits = async () => {
+    const result = await db
+      .update(Users)
+      .set({
+        credits: userDetail?.credits - 10,
+      })
+      .where(eq(Users?.email, user?.primaryEmailAddress?.emailAddress));
+    console.log(result);
+    setUserDetail((prev) => ({ ...prev, credits: userDetail?.credits - 10 }));
+    setVideoData({});
   };
 
   return (

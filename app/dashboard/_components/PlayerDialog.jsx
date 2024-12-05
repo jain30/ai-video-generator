@@ -1,3 +1,4 @@
+"use client";
 import React, { useEffect, useState } from "react";
 import { Player } from "@remotion/player";
 import {
@@ -13,12 +14,17 @@ import { Button } from "@/components/ui/button";
 import { VideoData } from "@/config/schema";
 import { db } from "@/config/db";
 import { eq } from "drizzle-orm";
+import { useRouter } from "next/navigation";
 
 function PlayerDialog({ playVideo, videoId }) {
   const [openDialog, setOpenDialog] = useState(false);
   const [videoData, setVideoData] = useState();
+  const [durationInFrame, setDurationFrame] = useState(100);
+  const router = useRouter();
+
   useEffect(() => {
-    setOpenDialog(playVideo);
+    // setOpenDialog(!openDialog);
+    console.log(videoId);
     videoId && GetVideoData();
   }, [playVideo]);
 
@@ -29,6 +35,7 @@ function PlayerDialog({ playVideo, videoId }) {
       .where(eq(VideoData.id, videoId));
     console.log(result);
     setVideoData(result[0]);
+    setOpenDialog(!openDialog);
   };
   return (
     <Dialog open={openDialog}>
@@ -40,16 +47,26 @@ function PlayerDialog({ playVideo, videoId }) {
           <DialogDescription>
             <Player
               component={RemotionVideo}
-              durationInFrames={120}
+              durationInFrames={Number(durationInFrame.toFixed(0))}
               compositionWidth={300}
               compositionHeight={450}
               fps={30}
+              controls={true}
               inputProps={{
                 ...videoData,
+                setDurationFrame: (frameValue) => setDurationFrame(frameValue),
               }}
             />
-            <div className="flex gap-10">
-              <Button variant="ghost">Cancel</Button>
+            <div className="flex gap-10 mt-10">
+              <Button
+                variant="ghost"
+                onClick={() => {
+                  router.replace("/dashboard");
+                  setOpenDialog(false);
+                }}
+              >
+                Cancel
+              </Button>
               <Button>Export</Button>
             </div>
           </DialogDescription>
