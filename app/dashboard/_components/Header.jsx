@@ -3,10 +3,18 @@ import { Button } from "@/components/ui/button";
 import { UserButton } from "@clerk/nextjs";
 import Image from "next/image";
 import React, { useContext } from "react";
+import { useRouter } from "next/navigation"; // Import useRouter
 
 export default function Header() {
   const { userDetail, setUserDetail } = useContext(UserDetailContext);
   console.log("Context Value:", userDetail);
+
+  const router = useRouter(); // Initialize the router
+
+  // Navigate to the dashboard
+  const handleNavigateToDashboard = () => {
+    router.push("/dashboard");
+  };
 
   return (
     <div className="p-3 px-3 flex items-center justify-between shadow-md">
@@ -19,7 +27,7 @@ export default function Header() {
           <Image src={"/star.png"} alt="star" height={20} width={20} />
           <h2>{userDetail?.credits}</h2>
         </div>
-        <Button>Dashboard</Button>
+        <Button onClick={handleNavigateToDashboard}>Dashboard</Button>
         <UserButton />
       </div>
     </div>
